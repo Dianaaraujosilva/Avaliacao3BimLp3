@@ -21,7 +21,8 @@ if(modelName == "Student")
         var former = false;
 
         var student = new Student(registration, name, city , former);
-        if(studentRepository.ExistsById(registration))
+        
+	if(studentRepository.ExistsById(registration))
         {
             Console.WriteLine($"Estudante com Registration {registration} já existe");
         }else
@@ -52,7 +53,7 @@ if(modelName == "Student")
         if(studentRepository.ExistsById(registration))
         {
             studentRepository.MarkAsFormed(registration);
-            Console.WriteLine($"Estudante {registration} definido com sucesso");
+            Console.WriteLine($"Estudante {registration} definido como formado");
         }else
         {
             Console.WriteLine($"Estudante {registration} não encontrado!");
@@ -61,11 +62,12 @@ if(modelName == "Student")
 
     if(modelAction == "List")
     {
-        if(studentRepository.GetAll().Any())
+        if(studentsRepository.GetAllFormed().Any())
         {
             Console.WriteLine("Student List");
-            foreach (var student in studentRepository.GetAll())
+            foreach (var student in students)
             {
+		var former = student.Former ? "formado" : "não formado";
                 Console.WriteLine($"{student.Registration}, {student.Name}, {student.City}, {student.Former}");
             } 
         }else
@@ -81,6 +83,7 @@ if(modelName == "Student")
             Console.WriteLine("Student List");
             foreach (var student in studentRepository.GetAllFormed())
             {
+		var former = student.Former ? "formado" : "não formado";
                 Console.WriteLine($"{student.Registration}, {student.Name}, {student.City}, {student.Former}");
             } 
         }else
@@ -91,13 +94,14 @@ if(modelName == "Student")
 
     if(modelAction == "ListByCity")
     {
-        string city = args[4];
+        var city = args[4];
 
         if(studentRepository.GetAllStudentByCity(city).Any())
         {
             Console.WriteLine("Student List");
             foreach (var student in studentRepository.GetAllStudentByCity(city))
             {
+		var former = student.Former ? "formado" : "não formado";
                 Console.WriteLine($"{student.Registration}, {student.Name}, {student.City}, {student.Former}");
             } 
         }else
@@ -108,11 +112,11 @@ if(modelName == "Student")
 
     if(modelAction == "ListByCities")
     {
-	    String[] cities = new String[args.GetLength(1)-3];
+	var cities = new String[args.Length - 2];
         
         for(int i = 2; i < args.GetLength(1); i++)
         {
-            cities[i] = args[i];
+            cities[i-2] = args[i];
         }
 
         if(studentRepository.GetAllByCities(cities).Any())
@@ -120,12 +124,48 @@ if(modelName == "Student")
             Console.WriteLine("Student List");
             foreach (var student in studentRepository.GetAllByCities(cities))
             {
+		var former = student.Former ? "formado" : "não formado";
                 Console.WriteLine($"{student.Registration}, {student.Name}, {student.City}, {student.Former}");
             } 
         }else
         {
             Console.WriteLine("Não encontrado");
         } 
-    }
 
+    }
+    
+     if(modelAction == "CountByCities")
+     {
+        List<CountStudentGroupByAttribute> results = studentRepository.CountByCities();
+        if(results.Count() > 0)
+        {
+            foreach(var group in groups)
+            {
+                Console.WriteLine($"{result.AttributeName}, {result.StudentNumber}");
+            }
+        }
+
+        else
+        {
+            Console.WriteLine("Nenhum estudante cadastrado");
+        }
+    }
+    
+        if(modelAction == "CountByFormed")
+        {
+	   List<CountStudentGroupByAttribute> results = studentRepository.CountByFormed();
+           if(results.Count() > 0)
+           {
+                foreach(var group in groups)
+                {
+                    var former = group.AttributeName == "1" ? "Formados" : "Não formados";
+                    Console.WriteLine($"{former}, {group.StudentNumber}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nenhum estudante cadastrado");
+            }
+        }
+    }
 }
